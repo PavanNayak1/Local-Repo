@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>MediCare AI • Hospital Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600&display=swap');
+
+    body {
+        font-family: 'Inter', system-ui, sans-serif;
+        background: linear-gradient(135deg, #f0f7ff 0%, #e6f2ff 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+    }
+
+    .card {
+        background: white;
+        border-radius: 1.5rem;
+        box-shadow: 0 20px 50px rgba(59, 130, 246, 0.12);
+        max-width: 420px;
+        width: 100%;
+        overflow: hidden;
+    }
+
+    .owl-container {
+        position: relative;
+        height: 170px;           /* slightly increased to fit the owl properly */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 1rem 0 1.5rem;
+    }
+
+    .bubble {
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #3b82f6;
+        color: white;
+        padding: 0.35rem 1rem;
+        border-radius: 2rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        white-space: nowrap;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        opacity: 0;
+        transition: all 0.3s ease;
+        pointer-events: none;
+        z-index: 30;   /* ← ONLY THIS LINE ADDED */
+    }
+
+    .bubble.visible {
+        opacity: 1;
+        transform: translateX(-50%) translateY(-15px);
+    }
+
+    .bubble::after {
+        content: '';
+        position: absolute;
+        bottom: -6px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-left: 7px solid transparent;
+        border-right: 7px solid transparent;
+        border-top: 7px solid #3b82f6;
+    }
+
+    /* ==================== REAL OWL CSS (Scaled to fit your card) ==================== */
+    .owl-head {
+        width: 130px;
+        height: 82px;
+        margin: 0 auto;
+        background: #74b9ff;
+        border-radius: 100%;
+        position: relative;
+        z-index: 3;
+    }
+
+    .owl-head:before {
+        content: "";
+        position: absolute;
+        left: 16px;
+        top: 0;
+        border-right: 13px solid transparent;
+        border-bottom: 13px solid #74b9ff;
+        border-left: 13px solid transparent;
+        transform: rotate(-24deg);
+    }
+
+    .owl-head:after {
+        content: "";
+        position: absolute;
+        right: 16px;
+        top: 0;
+        border-right: 13px solid transparent;
+        border-bottom: 13px solid #74b9ff;
+        border-left: 13px solid transparent;
+        transform: rotate(24deg);
+    }
+
+    .owl-eye {
+        width: 100%;
+        position: relative;
+        top: 8px;
+        z-index: 10;
+    }
+
+    .owl-eye:before,
+    .owl-eye:after {
+        content: "";
+        position: absolute;
+        z-index: 5;
+        height: 78px;
+        width: 78px;
+        border-radius: 100%;
+        background: #98e0f8;
+    }
+
+    .owl-eye:before {
+        left: -8px;
+        top: 0;
+    }
+
+    .owl-eye:after {
+        right: -8px;
+        top: 0;
+    }
+
+    .owl-eye-ball {
+        width: 66px;
+        height: 66px;
+        background: #fff;
+        position: absolute;
+        z-index: 6;
+        left: -2px;
+        top: 6px;
+        border-radius: 100%;
+        padding: 8px;
+    }
+
+    .owl-eye-ball:before {
+        content: "";
+        position: absolute;
+        left: 8px;
+        top: 8px;
+        right: 8px;
+        bottom: 8px;
+        background: #000;
+        border-radius: 100%;
+    }
+
+    .owl-eye-ball:after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    height: 22px;
+    width: 22px;
+    border-radius: 100%;
+    background: #fff;
+    z-index: 7;
+
+    transform: translate(-50%, -50%) 
+               translate(var(--shine-x, 0px), var(--shine-y, 0px));
+}
+
+    .owl-eye-ball.right-eye {
+        right: -2px;
+        left: auto;
+    }
+
+   /* BEAK - smaller and better positioned */
+    .beak {
+        position: absolute;
+        width: 0;
+        height: 0;
+        left: 43px;
+        top: 58px;
+        border-top: 28px solid #ef8e1b;
+        border-right: 30px solid transparent;
+        border-left: 20px solid transparent;
+        z-index: 1;
+    }
+
+    .owl-body {
+        height: 98px;
+        width: 130px;
+        background: #98e0f8;
+        border-radius: 100%;
+        position: relative;
+        top: -18px;
+        margin: 0 auto;
+        z-index: 1;
+        isolation: isolate;
+    }
+
+    .wings {
+        position: absolute;
+        left: -18px;
+        top: 0;
+        width: 48px;
+        height: 88px;
+        background: #74b9ff;
+        border-radius: 50px 0;
+        transform: rotate(-20deg);
+        /* transform-origin: 28px 12px; */
+        transform-origin: 90% 10%;
+        z-index: 20;
+        
+    }
+
+    .wings:nth-child(2) {
+        left: auto;
+        right: -18px;
+        border-radius: 0 50px;
+        transform: rotate(20deg);
+        /* transform-origin: 20px 12px; */
+        transform-origin: 10% 10%;
+
+    }
+
+    .feets {
+        position: absolute;
+        left: 42px;
+        bottom: -6px;
+        width: 6px;
+        height: 18px;
+        background: #ef8e1b;
+        border-radius: 3px / 9px;
+        transform: rotate(8deg);
+    }
+
+    .feets:before,
+    .feets:after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        width: 6px;
+        height: 18px;
+        background: #ef8e1b;
+        border-radius: 3px / 9px;
+    }
+
+    .feets:before { left: -7px; }
+    .feets:after  { left: 7px; }
+
+    .feets.right {
+        left: auto;
+        right: 42px;
+        transform: rotate(-8deg);
+    }
+
+    .toni {
+        position: absolute;
+        left: 52px;
+        top: 48%;
+        height: 6px;
+        width: 12px;
+        background: #74b9ff;
+        border-radius: 100%;
+    }
+
+    .toni:before {
+        content: "";
+        position: absolute;
+        right: -18px;
+        top: 0;
+        height: 6px;
+        width: 12px;
+        background: #74b9ff;
+        border-radius: 100%;
+    }
+
+    .toni:after {
+        content: "";
+        position: absolute;
+        right: -9px;
+        top: 10px;
+        height: 6px;
+        width: 12px;
+        background: #74b9ff;
+        border-radius: 100%;
+    }
+
+    /* Animations */
+    .owl.peeking {
+        animation: peek 1.6s infinite alternate;
+    }
+
+    .owl.hiding {
+        transform: scale(0.96) translateY(4px);
+    }
+
+    @keyframes peek {
+        from { transform: scale(1) rotate(0deg); }
+        to   { transform: scale(1.05) rotate(4deg) translateY(-6px); }
+    }
+
+    /* Tab and Role styles */
+    .tab-btn {
+        flex: 1;
+        padding: 1rem;
+        font-weight: 600;
+        color: #64748b;
+        border-bottom: 3px solid transparent;
+        transition: all 0.25s;
+    }
+
+    .tab-active {
+        color: #2563eb;
+        border-bottom-color: #2563eb;
+    }
+
+    .role-card {
+        background: #f8fafc;
+        border: 2px solid #e2e8f0;
+        border-radius: 1rem;
+        padding: 1.25rem 0.75rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .role-card.selected {
+        border-color: #3b82f6;
+        background: #eff6ff;
+        box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+    }
+
+    .role-icon {
+        font-size: 2.8rem;
+        margin-bottom: 0.5rem;
+    }
+
+        /* Pupil smooth movement */
+    .owl-eye-ball {
+        transition: transform 0.18s ease-out;
+    }
+
+    /* Wings cover eyes when hiding */
+    .owl.hiding .wings {
+        /* transform: rotate(85deg) !important; */
+        /* transform: rotate(110deg) translateY(-35px) !important; */
+        transform: rotate(-120deg) translate(20px, -40px);
+    z-index: 20;
+    }
+    .owl.hiding .wings:nth-child(2) {
+        /* transform: rotate(-85deg) !important; */
+        /* transform: rotate(-110deg) translateY(-35px) !important; */
+        transform: rotate(120deg) translate(-20px, -40px);
+    }
+
+    /* Wings slightly open when peeking */
+    .owl.peeking .wings {
+        /* transform: rotate(-5deg) !important; */
+        transform: rotate(30deg) translateY(-10px) ;
+
+    }
+    .owl.peeking .wings:nth-child(2) {
+        /* transform: rotate(5deg) !important; */
+        transform: rotate(-30deg) translateY(-10px) ;
+    }
+    /* Only the small white highlight (pupil) moves — exactly as you asked */
+    .owl-eye-ball:after {
+        transform: translate(var(--shine-x, 0px), var(--shine-y, 0px));
+    }
+    
+</style>
+</head>
+<body>
+<div class="card p-8 md:p-10">
+    <h1 class="text-4xl font-bold text-center text-blue-700 mb-1">MediCare AI</h1>
+    <p class="text-center text-slate-500 text-sm mb-6">Advanced Healthcare Management System</p>
+    
+<!-- Owl mascot -->
+<div class="owl-container">
+    <div id="owl" class="owl">
+        <div class="owl-head">
+            <div class="owl-eye">
+                    <div class="owl-eye-ball" id="left-ball"></div>
+                    <div class="owl-eye-ball right-eye" id="right-ball"></div>
+                    <div class="beak"></div>
+                </div>
+        </div>
+        <div class="owl-body">
+            <div class="wings"></div>
+            <div class="wings"></div>
+            <div class="feets"></div>
+            <div class="feets right"></div>
+            <div class="toni"></div>
+        </div>
+    </div>
+    <div id="bubble" class="bubble">Hello! I'm watching 🐾</div>
+</div>
+<!-- Tabs -->
+    <div class="flex mb-8 border-b">
+        <button class="tab-btn tab-active" onclick="switchTab('signin')">Sign In</button>
+        <button class="tab-btn" onclick="switchTab('signup')">Sign Up</button>
+    </div>
+
+    <!-- Sign In Form -->
+    <div id="signin-form">
+        <div class="space-y-5">
+            <div>
+                <input type="email" id="signin-email" placeholder="Email" class="w-full px-5 py-3.5 border border-slate-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all">
+            </div>
+            <div class="relative">
+                <input id="signin-pass" type="password" placeholder="Password" class="w-full px-5 py-3.5 border border-slate-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none pr-12 transition-all">
+                <i id="toggle-signin" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 cursor-pointer fas fa-eye"></i>
+            </div>
+            <button id="signin-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 rounded-xl transition-all">Sign In</button>
+        </div>
+        <p class="text-center text-sm text-slate-500 mt-6">
+            New here? <button onclick="switchTab('signup',event)" class="text-blue-600 font-medium hover:underline">Create account</button>
+        </p>
+    </div>
+
+    <!-- Sign Up Form -->
+    <div id="signup-form" class="hidden">
+        <div class="space-y-5">
+            <!-- Role selection -->
+            <div class="text-center mb-2">
+                <p class="text-slate-600 font-medium mb-3">Select your role</p>
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="role-card" onclick="selectRole(this, 'Doctor')">
+                        <div class="role-icon">👨‍⚕️</div>
+                        <div class="text-sm font-medium">Doctor</div>
+                    </div>
+                    <div class="role-card" onclick="selectRole(this, 'Lab Tech')">
+                        <div class="role-icon">🧪</div>
+                        <div class="text-sm font-medium">Lab Tech</div>
+                    </div>
+                    <div class="role-card" onclick="selectRole(this, 'Patient')">
+                        <div class="role-icon">🧑</div>
+                        <div class="text-sm font-medium">Patient</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Role-specific fields (hidden until role selected) -->
+            <div id="role-fields" class="space-y-5"></div>
+
+            <!-- Password fields - shown only after role is selected -->
+            <div id="password-section" class="space-y-5 hidden">
+                <div class="relative">
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Create Password</label>
+                    <input id="signup-password" type="password" placeholder="••••••••" class="w-full px-5 py-3.5 border border-slate-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none pr-12 transition-all" required>
+                    <i id="toggle-signup-pass" class="absolute right-4 top-[42px] text-slate-400 cursor-pointer fas fa-eye"></i>
+                </div>
+                <div class="relative">
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Confirm Password</label>
+                    <input id="signup-confirm" type="password" placeholder="••••••••" class="w-full px-5 py-3.5 border border-slate-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none pr-12 transition-all" required>
+                    <i id="toggle-signup-confirm" class="absolute right-4 top-[42px] text-slate-400 cursor-pointer fas fa-eye"></i>
+                </div>
+            </div>
+
+            <button id="signup-btn" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-3.5 rounded-xl transition-all mt-2">
+                Create Account
+            </button>
+        </div>
+        <p class="text-center text-sm text-slate-500 mt-6">
+            Already have an account? <button onclick="switchTab('signin',event)" class="text-blue-600 font-medium hover:underline">Sign in</button>
+        </p>
+    </div>
+</div>
+
+<script>
+    const owl = document.getElementById('owl');
+    const bubble = document.getElementById('bubble');
+
+    function showBubble(text, duration = 2200) {
+        bubble.textContent = text;
+        bubble.classList.add('visible');
+        setTimeout(() => bubble.classList.remove('visible'), duration);
+    }
+
+    // Initial greeting
+    setTimeout(() => showBubble("Ready to help? 🦉", 1800), 700);
+
+    function switchTab(tab, e) {
+        document.getElementById('signin-form').classList.toggle('hidden', tab !== 'signin');
+        document.getElementById('signup-form').classList.toggle('hidden', tab !== 'signup');
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('tab-active'));
+        // event.target.classList.add('tab-active');
+        event.target.classList.add('tab-active');
+        owl.classList.remove('peeking', 'hiding');
+        showBubble(tab === 'signin' ? "Welcome back! 🦉" : "New friend? Nice! ✨");
+    }
+
+    function selectRole(el, role) {
+        document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+        el.classList.add('selected');
+
+        let html = '';
+        if (role === 'Doctor') {
+            html = `
+                <input type="text" id="name" placeholder="Full Name" class="w-full px-5 py-3.5 border border-slate-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none">
+                <input type="email" id="email" placeholder="Email" class="w-full px-5 py-3.5 border border-slate-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none">
+                <select id="specialization" class="w-full px-5 py-3.5 border border-slate-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none">
+                    <option>Neurologist (Brain) 🧠</option>
+                    <option>Eye Specialist 👁️</option>
+                    <option>Pulmonologist 🫁</option>
+                    <option>General Practitioner 🩺</option>
+                </select>
+            `;
+        } else if (role === 'Lab Tech') {
+            html = `
+                <input type="text" id="name" placeholder="Full Name" class="w-full px-5 py-3.5 border border-slate-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none">
+                <input type="email" id="email" placeholder="Email" class="w-full px-5 py-3.5 border border-slate-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none">
+            `;
+        } else { // Patient
+            html = `
+                <input type="text" id="name" placeholder="Full Name" class="w-full px-5 py-3.5 border border-slate-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none">
+                <input type="number" id="age" placeholder="Age" class="w-full px-5 py-3.5 border border-slate-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none">
+                <select id="gender" class="w-full px-5 py-3.5 border border-slate-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none">
+                    <option>Male</option><option>Female</option><option>Other</option>
+                </select>
+                <input type="email" id="email" placeholder="Email" class="w-full px-5 py-3.5 border border-slate-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none">
+            `;
+        }
+
+        document.getElementById('role-fields').innerHTML = html;
+        document.getElementById('password-section').classList.remove('hidden');
+    }
+
+    // Password show/hide + owl reaction
+    function setupPasswordToggle(passId, toggleId) {
+        const pass = document.getElementById(passId);
+        const toggle = document.getElementById(toggleId);
+        toggle.addEventListener('click', () => {
+            const isPassword = pass.type === 'password';
+            pass.type = isPassword ? 'text' : 'password';
+            toggle.classList.toggle('fa-eye', !isPassword);
+            toggle.classList.toggle('fa-eye-slash', isPassword);
+            if (isPassword) {
+                owl.classList.remove('hiding');
+                owl.classList.add('peeking');
+                showBubble("Oh! I see now 👀", 1600);
+            } else {
+                owl.classList.remove('peeking');
+                owl.classList.remove('hiding');   // reset
+                void owl.offsetWidth;             // force reflow
+                owl.classList.add('hiding');      // trigger again
+                showBubble("Eyes covered again 🙈", 1600);
+            }
+        });
+    }
+
+    setupPasswordToggle('signin-pass', 'toggle-signin');
+    setupPasswordToggle('signup-password', 'toggle-signup-pass');
+    setupPasswordToggle('signup-confirm', 'toggle-signup-confirm');
+
+    // Owl reacts when typing password (signin)
+    document.getElementById('signin-pass')?.addEventListener('focus', () => {
+        owl.classList.add('hiding');
+        showBubble("Not looking! 🙈", 1800);
+    });
+
+    // General input focus reaction
+    // document.addEventListener('focusin', (e) => {
+    //     if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') {
+    //         if (e.target.type !== 'password') {
+    //             owl.classList.add('peeking');
+    //             showBubble("Hmm... interesting 🦉", 1400);
+    //         }
+    //     }
+    // });
+
+    // ─── Signup logic ───────────────────────────────────────
+    document.getElementById('signup-btn').addEventListener('click', () => {
+        const roleCard = document.querySelector('.role-card.selected');
+        if (!roleCard) {
+            showBubble("Please select a role first 🦉", 1800);
+            return;
+        }
+        const role = roleCard.querySelector('.text-sm').textContent.trim();
+
+        const name = document.getElementById('name')?.value.trim();
+        const email = document.getElementById('email')?.value.trim();
+        const password = document.getElementById('signup-password')?.value;
+        const confirm = document.getElementById('signup-confirm')?.value;
+
+        if (!name || !email || !password) {
+            showBubble("Please fill all required fields", 2000);
+            return;
+        }
+
+        if (password !== confirm) {
+            showBubble("Passwords don't match! 😕", 2000);
+            return;
+        }
+
+        let users = JSON.parse(localStorage.getItem("users")) || [];
+        const existing = users.find(u => u.email === email);
+        if (existing) {
+            showBubble("Email already registered!", 2000);
+            return;
+        }
+
+        let id = "";
+        if (role === "Doctor") {
+            const spec = document.getElementById("specialization")?.value;
+            if (spec.includes("Brain")) id = "doc_brain_1";
+            else if (spec.includes("Eye")) id = "doc_eye_1";
+            else if (spec.includes("Pulmonologist")) id = "doc_lungs_1";
+            else id = "doc_general_" + Date.now();
+        } else if (role === "Patient") {
+            id = "pat_" + Date.now();
+        } else {
+            id = "lab_" + Date.now();
+        }
+
+        const newUser = {
+            id,
+            role,
+            name,
+            email,
+            password,
+            doctor_id: role === "Patient" ? null : undefined,
+            specialization: document.getElementById("specialization")?.value || null,
+            age: document.getElementById("age")?.value || null,
+            gender: document.getElementById("gender")?.value || null
+        };
+
+        users.push(newUser);
+        localStorage.setItem("users", JSON.stringify(users));
+        localStorage.setItem("currentUser", JSON.stringify(newUser));
+
+        showBubble("Account created! Taking you to sign in...", 1800);
+
+        setTimeout(() => {
+            switchTab('signin');
+            document.getElementById('signin-email').value = email;
+            document.getElementById('signin-pass').focus();
+        }, 500);
+    });
+
+    // ─── Signin logic ───────────────────────────────────────
+    document.getElementById('signin-btn').addEventListener('click', () => {
+        const email = document.getElementById('signin-email').value.trim();
+        const pass = document.getElementById('signin-pass').value;
+
+        if (!email || !pass) {
+            showBubble("Please enter email and password", 2000);
+            return;
+        }
+
+        const users = JSON.parse(localStorage.getItem("users")) || [];
+        const user = users.find(u => u.email === email && u.password === pass);
+
+        if (user) {
+            localStorage.setItem("currentUser", JSON.stringify(user));
+
+            if (user.role === "Doctor") {
+                window.location.href = "/doctor";
+            } else if (user.role === "Lab Tech") {
+                window.location.href = "/lab";
+            } else {
+                window.location.href = "/patient";
+            }
+        } else {
+            showBubble("Wrong email or password 😕", 2200);
+        }
+    });
+
+        // ==================== OWL EYE FOLLOWING - ONLY WHITE DOT MOVES ====================
+
+    // Select the small white highlight dots (the :after pseudo-elements are created dynamically)
+    function getHighlights() {
+        const leftBall = document.querySelector('.owl-eye-ball:not(.right-eye)');
+        const rightBall = document.querySelector('.owl-eye-ball.right-eye');
+        
+        return {
+            left: leftBall ? leftBall.querySelector('::after') || leftBall : null,  // fallback
+            right: rightBall ? rightBall.querySelector('::after') || rightBall : null
+        };
+    }
+
+    const highlights = getHighlights();
+
+    function moveWhiteDots(e) {
+        if (owl.classList.contains('hiding')) return;
+
+        const rect = owl.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + 65;   // eye level
+
+        const angle = Math.atan2(e.clientY - centerY, e.clientX - centerX);
+        const distance = 9;   // subtle movement for just the dot
+
+        // Move left white dot
+        if (highlights.left) {
+            const x = Math.cos(angle) * distance;
+            const y = Math.sin(angle) * (distance * 0.7);
+            highlights.left.style.transform = `translate(${x}px, ${y}px)`;
+        }
+
+        // Move right white dot
+        if (highlights.right) {
+            const x = Math.cos(angle) * distance;
+            const y = Math.sin(angle) * (distance * 0.7);
+            highlights.right.style.transform = `translate(${x}px, ${y}px)`;
+        }
+    }
+
+    document.addEventListener('mousemove', moveWhiteDots);
+
+    // Reset dots when mouse leaves
+    document.querySelector('.card').addEventListener('mouseleave', () => {
+        if (highlights.left) highlights.left.style.transform = 'translate(0px, 0px)';
+        if (highlights.right) highlights.right.style.transform = 'translate(0px, 0px)';
+    });
+
+    // Enhanced general input focus
+    document.addEventListener('focusin', (e) => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') {
+            if (e.target.type !== 'password') {
+                owl.classList.remove('hiding');
+                owl.classList.add('peeking');
+                showBubble("Hmm... interesting 🦉", 1400);
+            }
+        }
+    });
+
+    // Password field focus
+    document.getElementById('signin-pass')?.addEventListener('focus', () => {
+        owl.classList.add('hiding');
+        showBubble("Not looking! 🙈", 1800);
+    });
+
+</script>
+</body>
+</html>
